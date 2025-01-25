@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Scheduler</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .conflict {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Event Scheduler</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Start</th>
+                <th>End</th>
+            </tr>
+        </thead>
+        <tbody id="eventTable"></tbody>
+    </table>
+    <h2>Conflicts</h2>
+    <ul id="conflicts"></ul>
+    <h2>Suggested Resolutions</h2>
+    <ul id="resolutions"></ul>
+    <script>
+        const events = [
+            { description: "Meeting A", start: "09:00", end: "10:30" },
+            { description: "Workshop B", start: "10:00", end: "11:30" },
+            { description: "Lunch Break", start: "12:00", end: "13:00" },
+            { description: "Presentation C", start: "10:30", end: "12:00" }
+        ];
+
+        const workingHours = { start: "08:00", end: "18:00" };
+
+        function parseTime(time) {
+            const [hours, minutes] = time.split(":").map(Number);
+            return new Date(0, 0, 0, hours, minutes);
+        }
+
+        function detectConflicts(events) {
+            const conflicts = [];
+            events.sort((a, b) => parseTime(a.start) - parseTime(b.start));
+            for (let i = 0; i < events.length - 1; i++) {
+                if (parseTime(events[i].end) > parseTime(events[i + 1].start)) {
+                    conflicts.push([events[i], events[i + 1]]);
+                }
+            }
+            return conflicts;
+        }
+
+        function suggestResolutions(conflicts) {
+            const resolutions = [];
+            conflicts.forEach(conflict => {
+                conflict.forEach(event => {
+                    let suggestedStart = new Date(parseTime(event.end).getTime());
+                    let suggestedEnd = new Date(suggestedStart.getTime() + (parseTime(event.end) - parseTime(event.start)));
+                    if (suggestedEnd <= parseTime(workingHours.end)) {
+                        resolutions.push({
+                            event: event.description,
+                            start: suggestedStart.toTimeString().slice(0, 5),
+                            end: suggestedEnd.toTimeString().slice(0, 5)
+                        });
+                    }
+                });
+            });
+            return resolutions;
+        }
+
+        function displayEvents(events) {
+            const eventTable = document.getElementById("eventTable");
+            events.forEach(event => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${event.description}</td><td>${event.start}</td><td>${event.end}</td>`;
+                eventTable.appendChild(row);
+            });
+        }
+
+        function displayConflicts(conflicts) {
+            const conflictList = document.getElementById("conflicts");
+            conflicts.forEach(pair => {
+                const listItem = document.createElement("li");
+                listItem.textContent = `${pair[0].description} and ${pair[1].description}`;
+                listItem.className = "conflict";
+                conflictList.appendChild(listItem);
+            });
+        }
+
+        function displayResolutions(resolutions) {
+            const resolutionList = document.getElementById("resolutions");
+            resolutions.forEach(resolution => {
+                const listItem = document.createElement("li");
+                listItem.textContent = `Reschedule ${resolution.event} to Start: ${resolution.start}, End: ${resolution.end}`;
+                resolutionList.appendChild(listItem);
+            });
+        }
+
+        const conflicts = detectConflicts(events);
+        const resolutions = suggestResolutions(conflicts);
+
+        displayEvents(events);
+        displayConflicts(conflicts);
+        displayResolutions(resolutions);
+    </script>
+</body>
+</html>
