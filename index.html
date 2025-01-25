@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fungible Token</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Fungible Token</h1>
+    <p>Token Created: <span id="token-name">MyToken</span> (0.0.56789)</p>
+    <p>Treasury Balance: <span id="treasury-balance">1000</span></p>
+    <p>Recipient Balance: <span id="recipient-balance">0</span></p>
+
+    <button onclick="transferTokens()">Transfer 50 Tokens to Recipient</button>
+    <button onclick="mintTokens()">Mint 100 Tokens to Recipient</button>
+
+    <script src="script.js"></script>
+</body>
+</html>
